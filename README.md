@@ -2,6 +2,7 @@
 
 ## Changes I've done:
  - 'fixed' error `marked 'override', but does not override` in `service_client.h: virtual void call()`
+ - reduced ram usage for rosserial_arduino by using `PROGMEM` on strings
 
 ---
 

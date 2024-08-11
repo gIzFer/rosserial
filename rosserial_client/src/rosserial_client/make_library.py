@@ -389,12 +389,14 @@ class Message:
         f.write('\n')
 
     def _write_getType(self, f):
-        f.write('    virtual const char * getType() override { return "%s/%s"; };\n'%(self.package, self.name))
+        f.write('    virtual const char * getType(const char * type_msg) override { strcpy_P(type_msg, (char *)%s_%s_type);return type_msg; };\n'%(self.package, self.name))
 
     def _write_getMD5(self, f):
-        f.write('    virtual const char * getMD5() override { return "%s"; };\n'%self.md5)
+        f.write('    virtual const char * getMD5(const char * md5_msg) override { strcpy_P(md5_msg, (char *)%s_%s_md5);return md5_msg; };\n'%(self.package, self.name))
 
     def _write_impl(self, f):
+        f.write('    static const char %s_%s_type[] PROGMEM= "%s/%s";\n'%(self.package, self.name, self.package, self.name))
+        f.write('    static const char %s_%s_md5[] PROGMEM= "%s";\n'%(self.package, self.name, self.md5))
         f.write('  class %s : public ros::Msg\n' % self.name)
         f.write('  {\n')
         f.write('    public:\n')
@@ -462,10 +464,10 @@ class Service:
         f.write('namespace %s\n' % self.package)
         f.write('{\n')
         f.write('\n')
-        f.write('static const char %s[] = "%s/%s";\n'%(self.name.upper(), self.package, self.name))
+        f.write('static const char %s[] PROGMEM= "%s/%s";\n'%(self.name.upper(), self.package, self.name))
 
         def write_type(out, name):
-            out.write('    virtual const char * getType() override { return %s; };\n'%(name))
+            out.write('    virtual const char * getType(const char * type_msg) override { strcpy_P(type_msg, (char *)%s);return type_msg; };\n'%(name))
         _write_getType = lambda out: write_type(out, self.name.upper())
         self.req._write_getType = _write_getType
         self.resp._write_getType = _write_getType
